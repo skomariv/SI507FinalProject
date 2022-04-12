@@ -42,9 +42,8 @@ def write_csv_file(output_filepath, dict_to_write, header):
     with open(output_filepath,'w') as f:
         writer = csv.writer(f)
         writer.writerow(header)
-        for d in dict_to_write:
-            for key,val in d.items():
-                writer.writerow((key,val))
+        for key,val in dict_to_write.items():
+            writer.writerow((key,val))
 
 def read_csv_to_dicts(filepath, encoding='utf-8', newline='', delimiter=','):
     with open(filepath, 'r', newline=newline, encoding=encoding) as file_obj:
@@ -2614,21 +2613,39 @@ def remove_emoji(text):
         "]+", flags = re.UNICODE)
     return regrex_pattern.sub(r'',text)
 def main():
-    json_response = connect_to_endpoint(search_url, query_params)
     in_list = False
-    text = read_json('raw_tweets.json')
-    for tweet in json_response['data']:
-        for d in text:
-            if tweet['text'] in d.values():
+    tweets = read_json('cleaned_tweets.json')
+    if len(tweets[phrase]) >= 200:
+        in_list = True
+    if in_list == False:
+        json_response = connect_to_endpoint(search_url, query_params)
+        for tweet in json_response['data']:
+            if tweet['text'] in tweets[phrase]:
                 in_list = True
-        if in_list == False:
-            tweet['text'] = re.sub(",", "", tweet['text'])
-            tweet['text'] = re.sub("’", '', tweet['text'])
-            tweet['text'] = remove_emoji(tweet['text'])
-            if 'https' in tweet['text']:
-                tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
-            text.append({phrase: (tweet['text'])})
-    write_json('raw_tweets.json', text)
+            if in_list == False:
+                tweet['text'] = re.sub(",", "", tweet['text'])
+                tweet['text'] = re.sub("’", '', tweet['text'])
+                tweet['text'] = re.sub("&amp;", '', tweet['text'])
+                tweet['text'] = tweet['text'].replace('\n', '')
+                tweet['text'] = remove_emoji(tweet['text'])
+                if 'https' in tweet['text']:
+                    tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
+                tweets[phrase].append(tweet['text'])
+            in_list = False
+        write_json('cleaned_tweets.json', tweets)
+        write_csv_file('tweets.csv', tweets, ('query', 'text'))
+    # for tweet in json_response['data']:
+    #     for d in text:
+    #         if tweet['text'] in d.values():
+    #             in_list = True
+    #     if in_list == False:
+    #         tweet['text'] = re.sub(",", "", tweet['text'])
+    #         tweet['text'] = re.sub("’", '', tweet['text'])
+    #         tweet['text'] = remove_emoji(tweet['text'])
+    #         if 'https' in tweet['text']:
+    #             tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
+    #         text.append({phrase: (tweet['text'])})
+    # write_json('raw_tweets.json', text)
     #write_csv_file('tweets.csv', text, ('query', 'text'))
 
 
