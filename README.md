@@ -15,5 +15,6 @@
 4. State Violence
 5. Police Misconduct
 
-### Regardless of the query you choose to look at, you will be provided with a graph comparing the average positive/negative compound valuation score of each query's sample of 200 tweets. The maximum range is (-1, 1). 
+Regardless of the query you choose to look at, you will be provided with a graph comparing the average positive/negative compound valuation score of each query's sample of 200 tweets. The maximum range is (-1, 1). 
 
+If you are interested in changing the 200 tweets that have been used as the sample size for each query, you must first run `python3 search.py`, then `python3 processing.py`, and finally `python3 main.py` once again.
