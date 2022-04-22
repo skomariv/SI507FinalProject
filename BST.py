@@ -18,7 +18,6 @@ class BSTNode:
                 return
             self.left = BSTNode(val)
             return
-
         if self.right:
             self.right.insert(val)
             return
@@ -78,6 +77,13 @@ class BSTNode:
         if self.right is not None:
             self.right.inorder(vals)
         return vals
+
+    def print_inorder(self, root):
+        if root == None:
+            return []
+        left_list = self.print_inorder(root.left)
+        right_list = self.print_inorder(root.right)
+        return left_list + [self.val] + right_list
 
     def preorder(self, vals):
         if self.val is not None:

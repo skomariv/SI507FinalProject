@@ -12,7 +12,8 @@ search_url = "https://api.twitter.com/2/tweets/search/recent"
 
 # Optional params: start_time,end_time,since_id,until_id,max_results,next_token,
 # expansions,tweet.fields,media.fields,poll.fields,place.fields,user.fields
-phrase = 'police brutality'
+phrase = 'police misconduct'
+phrase = phrase.lower()
 def create_query_params(phrase):
     query_params = {'query':('place_country: US') and (f'{phrase} lang:en -is:retweet -is:reply'), 'max_results': '100'}
     return query_params
@@ -43,7 +44,8 @@ def write_csv_file(output_filepath, dict_to_write, header):
         writer = csv.writer(f)
         writer.writerow(header)
         for key,val in dict_to_write.items():
-            writer.writerow((key,val))
+            for v in val:
+                writer.writerow((key,v))
 
 def read_csv_to_dicts(filepath, encoding='utf-8', newline='', delimiter=','):
     with open(filepath, 'r', newline=newline, encoding=encoding) as file_obj:
@@ -59,7 +61,7 @@ def read_json(file):
     with open(file, 'r', encoding='utf-8') as file_obj:
         return json.load(file_obj)
 
-#https://gist.github.com/slowkow/7a7f61f495e3dbb7e3d767f97bd7304b
+#https://gist.github.com/slowkow/7a7f61f495e3dbb7e3d767f97bd7304b after definition statement include it in the beginning of docstring
 def remove_emoji(text):
     regrex_pattern = re.compile(pattern = "["
         u"\u231A-\u231B"
@@ -2623,31 +2625,22 @@ def main():
             if tweet['text'] in tweets[phrase]:
                 in_list = True
             if in_list == False:
-                tweet['text'] = re.sub(",", "", tweet['text'])
-                tweet['text'] = re.sub("’", '', tweet['text'])
-                tweet['text'] = re.sub("&amp;", '', tweet['text'])
-                tweet['text'] = tweet['text'].replace('\n', '')
-                tweet['text'] = remove_emoji(tweet['text'])
-                if 'https' in tweet['text']:
-                    tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
-                tweets[phrase].append(tweet['text'])
+                    tweet['text'] = re.sub(",", "", tweet['text'])
+                    tweet['text'] = re.sub("‘", '', tweet['text'])
+                    tweet['text'] = re.sub("’", '', tweet['text'])
+                    tweet['text'] = re.sub("&amp;", '', tweet['text'])
+                    tweet['text'] = remove_emoji(tweet['text'])
+                    tweet['text'] = tweet['text'].replace('\n', '')
+                    tweet['text'] = tweet['text'].replace('\"', '')
+                    tweet['text'] = tweet['text'].replace(" ", '')
+                    tweet['text'] = tweet['text'].replace("–", '')
+                    tweet['text'] = tweet['text'].replace("＠", '')
+                    if 'https' in tweet['text']:
+                        tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
+                    tweets[phrase].append(tweet['text'])
             in_list = False
         write_json('cleaned_tweets.json', tweets)
-        write_csv_file('tweets.csv', tweets, ('query', 'text'))
-    # for tweet in json_response['data']:
-    #     for d in text:
-    #         if tweet['text'] in d.values():
-    #             in_list = True
-    #     if in_list == False:
-    #         tweet['text'] = re.sub(",", "", tweet['text'])
-    #         tweet['text'] = re.sub("’", '', tweet['text'])
-    #         tweet['text'] = remove_emoji(tweet['text'])
-    #         if 'https' in tweet['text']:
-    #             tweet['text'] = re.sub('https:\/\/t.co\/\w+', '', tweet['text'])
-    #         text.append({phrase: (tweet['text'])})
-    # write_json('raw_tweets.json', text)
-    #write_csv_file('tweets.csv', text, ('query', 'text'))
-
+        write_csv_file('tweet.csv', tweets, ('query', 'text', 'neutral_score' ,'positive_score','compound_score'))
 
 if __name__ == "__main__":
     main()
