@@ -3,7 +3,7 @@
 ### Libraries neeeded to interact with program on user end: plotly, spacy, re
 ### Libraries needed to interact with program on back end: requests, pandas, nltk, nltk.sentiment.vader
 
-### In order to run the `search.py` file, download the `secrets.py` file which contains necessary API keys.
+### In order to run the `search.py` file, download the `secrets.py` file under my Canvas submission which contains necessary API keys.
 
 ### In order to run program from command line, type: `python3 main.py`.
 
